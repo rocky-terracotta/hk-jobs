@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HK Job Market Visualizer</title>
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #0a0a0f;
+  --bg2: #12121a;
+  --fg: #e0e0e8;
+  --fg2: #888894;
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+}
+
+#wrapper {
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
+  padding-bottom: 250px;
+}
+
+#header {
+  padding: 20px 28px 16px;
+  flex-shrink: 0;
+}
+
+.intro { margin-bottom: 18px; }
+.intro h1 {
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.intro h1 .subtitle {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--fg2);
+}
+.intro p {
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--fg2);
+  margin-bottom: 8px;
+}
+.intro a { color: var(--fg2); }
+.intro strong, .intro b { color: var(--fg); font-weight: 600; }
+.intro details { margin: 10px 0; }
+.intro summary {
+  font-size: 14px;
+  color: var(--fg2);
+  cursor: pointer;
+  user-select: none;
+}
+.intro summary:hover { color: var(--fg); }
+.intro .prompt-box {
+  margin-top: 8px;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 6px;
+  padding: 12px 16px;
+  font-family: 'SF Mono', 'Menlo', 'Consolas', monospace;
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--fg2);
+  max-height: 300px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.stats-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px 28px;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.stat-section {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.stat-section h3 {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--fg2);
+}
+.stat-big {
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+.stat-label {
+  font-size: 11px;
+  color: var(--fg2);
+}
+
+.tier-bar { display: flex; flex-direction: column; gap: 3px; }
+.tier-row { display: flex; align-items: center; gap: 6px; font-size: 12px; }
+.tier-color { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+.tier-name { flex: 1; color: var(--fg2); white-space: nowrap; }
+.tier-jobs { text-align: right; white-space: nowrap; }
+.tier-pct { text-align: right; width: 30px; color: var(--fg2); font-size: 11px; }
+
+.histogram { display: flex; align-items: flex-end; gap: 2px; height: 54px; }
+.histogram .bar { flex: 1; border-radius: 1px 1px 0 0; min-height: 1px; }
+.hist-labels { display: flex; justify-content: space-between; font-size: 10px; color: var(--fg2); margin-top: 2px; }
+
+.hbar-chart { display: flex; flex-direction: column; gap: 3px; }
+.hbar-row { display: flex; align-items: center; gap: 6px; font-size: 12px; }
+.hbar-label { width: 100px; flex-shrink: 0; color: var(--fg2); font-size: 11px; text-align: right; }
+.hbar-track { flex: 1; height: 12px; background: rgba(255,255,255,0.04); border-radius: 2px; overflow: hidden; min-width: 36px; }
+.hbar-fill { height: 100%; border-radius: 2px; }
+.hbar-val { width: 44px; flex-shrink: 0; font-size: 11px; color: var(--fg); text-align: right; }
+
+.controls-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.color-toggle { display: flex; gap: 4px; }
+.color-toggle button {
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--fg2);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.color-toggle button.active {
+  background: rgba(255,255,255,0.08);
+  color: var(--fg);
+  border-color: rgba(255,255,255,0.2);
+}
+.color-toggle button:hover:not(.active) {
+  background: rgba(255,255,255,0.04);
+}
+
+.gradient-legend {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--fg2);
+}
+.gradient-legend canvas { border-radius: 2px; }
+
+canvas#canvas { display: block; cursor: default; }
+
+#tooltip {
+  position: fixed;
+  pointer-events: none;
+  background: var(--bg2);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 13px;
+  line-height: 1.5;
+  max-width: 380px;
+  opacity: 0;
+  transition: opacity 0.12s;
+  z-index: 20;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+}
+#tooltip.visible { opacity: 1; }
+#tooltip .tt-title { font-weight: 600; font-size: 14px; margin-bottom: 6px; color: #fff; }
+#tooltip .tt-highlight { font-size: 12px; margin-bottom: 8px; }
+#tooltip .tt-stats { display: grid; grid-template-columns: auto auto; gap: 2px 12px; font-size: 12px; }
+#tooltip .tt-stats .label { color: var(--fg2); }
+#tooltip .tt-stats .value { color: var(--fg); text-align: right; }
+#tooltip .tt-sparkline { margin-top: 8px; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 8px; }
+#tooltip .tt-sparkline .spark-label { font-size: 11px; color: var(--fg2); margin-bottom: 4px; }
+#tooltip .tt-sparkline canvas { display: block; }
+#tooltip .tt-rationale { font-size: 11px; color: var(--fg2); margin-top: 8px; line-height: 1.4; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 8px; }
+</style>
+</head>
+<body>
+
+<div id="wrapper">
+<div id="header">
+  <div class="intro">
+    <h1>HK Job Market Visualizer</h1>
+    <p>This tool visualizes <b>16 industry sectors</b> from the <a href="https://www.censtatd.gov.hk/" target="_blank">HK Census &amp; Statistics Department</a> <a href="https://www.censtatd.gov.hk/en/scode452.html" target="_blank">Quarterly Survey of Employment and Vacancies</a> (<a href="https://www.censtatd.gov.hk/en/web_table.html?id=215-16001" target="_blank">Table 215-16001</a>), covering <b>2.71M persons engaged</b> in surveyed establishments. This represents ~73% of Hong Kong's ~3.7M total employed population &mdash; it excludes civil servants (~180K), foreign domestic helpers (~330K), the self-employed (~250K), and workers in establishments below the survey threshold. Each rectangle's <b>area</b> is proportional to persons engaged. <b>Color</b> shows the selected metric &mdash; toggle between employment growth, vacancy rate, hiring demand, and AI exposure.</p>
+    <p>Data covers quarterly snapshots from March 2023 through September 2025. Hover over any tile to see detailed metrics and a quarterly employment trend sparkline.</p>
+    <p><b>LLM-powered coloring:</b> The "AI Exposure" layer uses an LLM to score each industry sector's exposure to digital AI disruption on a 0&ndash;10 scale. A high score means AI is rapidly reshaping the work &mdash; not necessarily eliminating it. Software developers and financial analysts score high because AI is transforming their work, but demand could grow as each worker becomes more productive.</p>
+    <details>
+      <summary>View the AI Exposure scoring prompt</summary>
+      <div class="prompt-box">You are an expert analyst evaluating how exposed different Hong Kong industry sectors are to AI disruption.
+
+Rate each sector's overall AI Exposure on a scale from 0 to 10.
+
+AI Exposure measures: how much will AI reshape this sector? Consider both direct effects (AI automating tasks currently done by humans) and indirect effects (AI making each worker so productive that fewer are needed).
+
+A key signal is whether the sector's work product is fundamentally digital. If the work is done on computers — writing, coding, analyzing, communicating — then AI exposure is inherently high (7+). Conversely, sectors requiring physical presence, manual skill, or real-time human interaction in the physical world have a natural barrier.
+
+Hong Kong context: Consider Hong Kong's specific economic structure — a services-dominated economy with large financial, professional services, and trade sectors. Factor in HK's regulatory environment, dense urban geography, and role as a gateway between mainland China and international markets.
+
+Use these anchors:
+- 0–2: Minimal. Physical, hands-on work in unpredictable environments. Examples: construction manual workers, waste collection.
+- 3–4: Low. Mostly physical or interpersonal. AI helps with peripheral tasks. Examples: healthcare, transportation, utilities.
+- 5–6: Moderate. Mix of physical and knowledge work. AI meaningfully augments the digital portions. Examples: education, retail, real estate.
+- 7–8: High. Predominantly knowledge work. AI tools already boosting productivity significantly. Examples: finance, legal, trade documentation, administration.
+- 9–10: Very high. Almost entirely done on computers. Core tasks in domains where AI advances fastest. Examples: software development, media, data processing.
+
+Respond with JSON: {"exposure": 0-10, "rationale": "2-3 sentences"}</div>
+    </details>
+  </div>
+
+  <div class="controls-row">
+    <div class="stat-section">
+      <h3>Layer</h3>
+      <div class="color-toggle" id="colorToggle">
+        <button data-mode="growth" class="active">Employment Growth</button>
+        <button data-mode="vacancy">Vacancy Rate</button>
+        <button data-mode="demand">Hiring Demand</button>
+        <button data-mode="exposure">AI Exposure</button>
+      </div>
+    </div>
+    <div class="gradient-legend">
+      <span id="legendLow">Declining</span>
+      <canvas id="gradientLegend" width="80" height="8"></canvas>
+      <span id="legendHigh">Growing</span>
+    </div>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-section">
+      <h3>Total jobs</h3>
+      <div class="stat-big" id="statTotalJobs">&mdash;</div>
+    </div>
+    <div class="stat-section" id="block2"></div>
+    <div class="stat-section" id="block3"></div>
+    <div class="stat-section" id="block4"></div>
+    <div class="stat-section" id="block5"></div>
+    <div class="stat-section" id="block6"></div>
+    <div class="stat-section" id="block7"></div>
+    <div class="stat-section" id="block8"></div>
+  </div>
+</div>
+
+<canvas id="canvas"></canvas>
+</div>
+
+<div id="tooltip">
+  <div class="tt-title"></div>
+  <div class="tt-highlight"></div>
+  <div class="tt-stats"></div>
+  <div class="tt-rationale"></div>
+  <div class="tt-sparkline">
+    <div class="spark-label">Quarterly Employment Trend (2023-2025)</div>
+    <canvas width="300" height="50"></canvas>
+  </div>
+</div>
+
+<script>
+
+// ── Color scales ────────────────────────────────────────────────────────
+
+let colorMode = "growth";
+
+function boostContrast(t) {
+  const c = (t - 0.5) * 2;
+  const b = Math.sign(c) * Math.pow(Math.abs(c), 0.55);
+  return b / 2 + 0.5;
+}
+
+function greenRedCSS(t, alpha) {
+  t = boostContrast(Math.max(0, Math.min(1, t)));
+  let r, g, b;
+  if (t < 0.5) {
+    const s = t / 0.5;
+    r = Math.round(200 - s * 160);
+    g = Math.round(50 + s * 130);
+    b = Math.round(50 - s * 20);
+  } else {
+    const s = (t - 0.5) / 0.5;
+    r = Math.round(40 + s * 20);
+    g = Math.round(180 + s * 40);
+    b = Math.round(30 + s * 50);
+  }
+  return `rgba(${r},${g},${b},${alpha})`;
+}
+
+// Growth color: maps YoY % change to 0-1 (red=-8%, green=+8%)
+function growthColor(v, a) {
+  if (v == null) return `rgba(128,128,128,${a})`;
+  const t = Math.max(0, Math.min(1, (v + 8) / 16));
+  return greenRedCSS(t, a);
+}
+
+// Vacancy rate color: maps rate to 0-1 (red=0%, green=4%+)
+function vacancyColor(v, a) {
+  if (v == null) return `rgba(128,128,128,${a})`;
+  const t = Math.max(0, Math.min(1, v / 4));
+  return greenRedCSS(t, a);
+}
+
+// Demand color: maps YoY vacancy change to 0-1 (red=-15%, green=+15%)
+function demandColor(v, a) {
+  if (v == null) return `rgba(128,128,128,${a})`;
+  const t = Math.max(0, Math.min(1, (v + 15) / 30));
+  return greenRedCSS(t, a);
+}
+
+// Exposure color: 0=green (low exposure), 10=red (high exposure)
+function exposureColor(v, a) {
+  if (v == null) return `rgba(128,128,128,${a})`;
+  return greenRedCSS(1 - v / 10, a);  // flip: high exposure = red
+}
+
+function tileColorCSS(d, alpha) {
+  if (colorMode === "growth") return growthColor(d.yoyPersons, alpha);
+  if (colorMode === "vacancy") return vacancyColor(d.vacancyRate, alpha);
+  if (colorMode === "demand") return demandColor(d.yoyVacancies, alpha);
+  if (colorMode === "exposure") return exposureColor(d.exposure, alpha);
+  return `rgba(128,128,128,${alpha})`;
+}
+
+function formatNumber(n) {
+  if (n == null) return "\u2014";
+  if (n >= 1e6) return (n / 1e6).toFixed(2) + "M";
+  if (n >= 1e3) return (n / 1e3).toFixed(1) + "K";
+  return n.toLocaleString();
+}
+
+function formatCompact(n) {
+  if (n == null) return "\u2014";
+  if (n >= 1e6) return (n / 1e6).toFixed(1) + "M";
+  if (n >= 1e3) return Math.round(n / 1e3) + "K";
+  return n.toLocaleString();
+}
+
+function tileSubInfo(r) {
+  if (colorMode === "growth") {
+    const sign = r.yoyPersons > 0 ? "+" : "";
+    return sign + r.yoyPersons.toFixed(1) + "% YoY \u00b7 " + formatCompact(r.persons) + " jobs";
+  }
+  if (colorMode === "vacancy") {
+    return r.vacancyRate.toFixed(1) + "% rate \u00b7 " + formatCompact(r.vacancies) + " vacancies";
+  }
+  if (colorMode === "demand") {
+    const sign = r.yoyVacancies > 0 ? "+" : "";
+    return sign + r.yoyVacancies.toFixed(1) + "% \u00b7 " + formatCompact(r.vacancies) + " vacancies";
+  }
+  if (colorMode === "exposure") {
+    return (r.exposure != null ? r.exposure + "/10" : "") +
+           " \u00b7 " + formatCompact(r.persons) + " jobs";
+  }
+  return "";
+}
+
+// ── Squarified treemap layout ──────────────────────────────────────────
+
+function squarify(items, x, y, w, h) {
+  if (items.length === 0) return [];
+  if (items.length === 1) return [{ ...items[0], rx: x, ry: y, rw: w, rh: h }];
+  const total = items.reduce((s, d) => s + d.value, 0);
+  if (total === 0) return [];
+  const results = [];
+  let remaining = [...items], cx = x, cy = y, cw = w, ch = h;
+  while (remaining.length > 0) {
+    const remTotal = remaining.reduce((s, d) => s + d.value, 0);
+    const vertical = cw >= ch;
+    const side = vertical ? ch : cw;
+    let row = [remaining[0]], rowSum = remaining[0].value;
+    for (let i = 1; i < remaining.length; i++) {
+      const candidate = [...row, remaining[i]];
+      const candidateSum = rowSum + remaining[i].value;
+      if (worstAspect(candidate, candidateSum, side, remTotal, vertical ? cw : ch) <
+          worstAspect(row, rowSum, side, remTotal, vertical ? cw : ch)) {
+        row = candidate; rowSum = candidateSum;
+      } else break;
+    }
+    const rowFraction = rowSum / remTotal;
+    const rowThickness = vertical ? cw * rowFraction : ch * rowFraction;
+    let offset = 0;
+    for (const item of row) {
+      const itemFraction = item.value / rowSum;
+      const itemLength = side * itemFraction;
+      if (vertical) results.push({ ...item, rx: cx, ry: cy + offset, rw: rowThickness, rh: itemLength });
+      else results.push({ ...item, rx: cx + offset, ry: cy, rw: itemLength, rh: rowThickness });
+      offset += itemLength;
+    }
+    if (vertical) { cx += rowThickness; cw -= rowThickness; }
+    else { cy += rowThickness; ch -= rowThickness; }
+    remaining = remaining.slice(row.length);
+  }
+  return results;
+}
+
+function worstAspect(row, rowSum, side, totalArea, availableExtent) {
+  const rowExtent = availableExtent * (rowSum / totalArea);
+  if (rowExtent === 0) return Infinity;
+  let worst = 0;
+  for (const item of row) {
+    const itemLen = side * (item.value / rowSum);
+    if (itemLen === 0) continue;
+    const aspect = Math.max(rowExtent / itemLen, itemLen / rowExtent);
+    if (aspect > worst) worst = aspect;
+  }
+  return worst;
+}
+
+// ── Rendering ──────────────────────────────────────────────────────────
+
+let rawData = null;
+let data = [];
+let rects = [];
+let hovered = null;
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+let dpr = window.devicePixelRatio || 1;
+const MARGIN = 12, GAP = 1.5;
+
+function layout() {
+  const wrapper = document.getElementById("wrapper");
+  const w = wrapper.clientWidth;
+  const h = Math.round(w * 3 / 4);
+  canvas.width = w * dpr; canvas.height = h * dpr;
+  canvas.style.width = w + "px"; canvas.style.height = h + "px";
+  const tx = MARGIN, ty = MARGIN, tw = w - MARGIN * 2, th = h - MARGIN * 2;
+  const byCategory = {};
+  for (const d of data) { if (!byCategory[d.category]) byCategory[d.category] = []; byCategory[d.category].push(d); }
+  const categories = Object.keys(byCategory).map(cat => ({
+    cat, items: byCategory[cat].sort((a, b) => (b.persons || 0) - (a.persons || 0)),
+    value: byCategory[cat].reduce((s, d) => s + (d.persons || 1), 0),
+  })).sort((a, b) => b.value - a.value);
+  const catRects = squarify(categories, tx, ty, tw, th);
+  rects = [];
+  for (const cr of catRects) {
+    const items = cr.items.map(d => ({ ...d, value: d.persons || 1 }));
+    const innerRects = squarify(items, cr.rx + GAP, cr.ry + GAP, cr.rw - GAP * 2, cr.rh - GAP * 2);
+    for (const ir of innerRects) rects.push(ir);
+  }
+}
+
+function draw() {
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.fillStyle = "#0a0a0f";
+  ctx.fillRect(0, 0, canvas.width / dpr, canvas.height / dpr);
+  for (const r of rects) {
+    const isHovered = r === hovered;
+    const g = GAP / 2, rx = r.rx + g, ry = r.ry + g, rw = r.rw - g * 2, rh = r.rh - g * 2;
+    if (rw <= 0 || rh <= 0) continue;
+    ctx.fillStyle = tileColorCSS(r, isHovered ? 0.8 : 0.5);
+    ctx.fillRect(rx, ry, rw, rh);
+    if (isHovered) { ctx.strokeStyle = "#fff"; ctx.lineWidth = 2; ctx.strokeRect(rx, ry, rw, rh); }
+    if (rw > 50 && rh > 18) {
+      ctx.save(); ctx.beginPath(); ctx.rect(rx + 4, ry + 2, rw - 8, rh - 4); ctx.clip();
+      const fontSize = Math.min(14, Math.max(9, Math.min(rw / 8, rh / 3)));
+      ctx.font = `600 ${fontSize}px -apple-system, system-ui, sans-serif`;
+      ctx.fillStyle = isHovered ? "#fff" : "rgba(255,255,255,0.88)";
+      ctx.textBaseline = "top";
+      ctx.fillText(r.title, rx + 6, ry + 5);
+      if (rh > 36 && rw > 60) {
+        ctx.font = `400 ${Math.max(8, fontSize - 2)}px -apple-system, system-ui, sans-serif`;
+        ctx.fillStyle = "rgba(255,255,255,0.5)";
+        ctx.fillText(tileSubInfo(r), rx + 6, ry + 6 + fontSize + 2);
+      }
+      if (rh > 54 && rw > 80) {
+        ctx.font = `400 ${Math.max(8, fontSize - 3)}px -apple-system, system-ui, sans-serif`;
+        ctx.fillStyle = "rgba(255,255,255,0.35)";
+        ctx.fillText(r.category, rx + 6, ry + 6 + fontSize + 2 + (fontSize - 1));
+      }
+      ctx.restore();
+    }
+  }
+}
+
+function hitTest(mx, my) {
+  const rect = canvas.getBoundingClientRect();
+  const cx = mx - rect.left, cy = my - rect.top;
+  for (let i = rects.length - 1; i >= 0; i--) {
+    const r = rects[i];
+    if (cx >= r.rx && cx < r.rx + r.rw && cy >= r.ry && cy < r.ry + r.rh) return r;
+  }
+  return null;
+}
+
+function tooltipHighlight(d) {
+  if (colorMode === "growth") {
+    const v = d.yoyPersons;
+    const color = growthColor(v, 1);
+    const sign = v > 0 ? "+" : "";
+    return `<span style="color:${color};font-weight:600;">Employment Growth: ${sign}${v.toFixed(1)}% YoY</span>` +
+      `<div style="margin-top:3px;height:4px;background:rgba(255,255,255,0.08);border-radius:2px;">` +
+      `<div style="height:100%;width:${Math.max(2, Math.min(100, (v + 8) / 16 * 100))}%;background:${color};border-radius:2px;"></div></div>`;
+  } else if (colorMode === "vacancy") {
+    const v = d.vacancyRate;
+    const color = vacancyColor(v, 1);
+    return `<span style="color:${color};font-weight:600;">Vacancy Rate: ${v.toFixed(1)}%</span>` +
+      `<div style="margin-top:3px;height:4px;background:rgba(255,255,255,0.08);border-radius:2px;">` +
+      `<div style="height:100%;width:${Math.max(2, Math.min(100, v / 4 * 100))}%;background:${color};border-radius:2px;"></div></div>`;
+  } else if (colorMode === "demand") {
+    const v = d.yoyVacancies;
+    const color = demandColor(v, 1);
+    const sign = v > 0 ? "+" : "";
+    return `<span style="color:${color};font-weight:600;">Hiring Demand: ${sign}${v.toFixed(1)}% YoY</span>` +
+      `<div style="margin-top:3px;height:4px;background:rgba(255,255,255,0.08);border-radius:2px;">` +
+      `<div style="height:100%;width:${Math.max(2, Math.min(100, (v + 15) / 30 * 100))}%;background:${color};border-radius:2px;"></div></div>`;
+  } else if (colorMode === "exposure") {
+    const v = d.exposure;
+    if (v == null) return "";
+    const color = exposureColor(v, 1);
+    return `<span style="color:${color};font-weight:600;">AI Exposure: ${v}/10</span>` +
+      `<div style="margin-top:3px;height:4px;background:rgba(255,255,255,0.08);border-radius:2px;">` +
+      `<div style="height:100%;width:${v * 10}%;background:${color};border-radius:2px;"></div></div>`;
+  }
+  return "";
+}
+
+function drawSparkline(d, canvasEl) {
+  const q = d.quarterly;
+  if (!q) return;
+  const keys = Object.keys(q).sort();
+  const vals = keys.map(k => q[k]);
+  const minV = Math.min(...vals) * 0.998;
+  const maxV = Math.max(...vals) * 1.002;
+  const range = maxV - minV || 1;
+  const w = canvasEl.width;
+  const h = canvasEl.height;
+  const sctx = canvasEl.getContext("2d");
+  sctx.clearRect(0, 0, w, h);
+
+  // Draw subtle grid
+  sctx.strokeStyle = "rgba(255,255,255,0.06)";
+  sctx.lineWidth = 1;
+  for (let i = 0; i < vals.length; i++) {
+    const x = (i / (vals.length - 1)) * (w - 20) + 10;
+    // Year separator lines (Q1 markers)
+    if (keys[i].endsWith("Q1")) {
+      sctx.beginPath();
+      sctx.moveTo(x, 0);
+      sctx.lineTo(x, h);
+      sctx.stroke();
+    }
+  }
+
+  // Draw line
+  sctx.beginPath();
+  sctx.strokeStyle = "rgba(100,200,150,0.8)";
+  sctx.lineWidth = 1.5;
+  for (let i = 0; i < vals.length; i++) {
+    const x = (i / (vals.length - 1)) * (w - 20) + 10;
+    const y = h - 6 - ((vals[i] - minV) / range) * (h - 12);
+    if (i === 0) sctx.moveTo(x, y);
+    else sctx.lineTo(x, y);
+  }
+  sctx.stroke();
+
+  // Dots
+  for (let i = 0; i < vals.length; i++) {
+    const x = (i / (vals.length - 1)) * (w - 20) + 10;
+    const y = h - 6 - ((vals[i] - minV) / range) * (h - 12);
+    sctx.beginPath();
+    sctx.fillStyle = i === vals.length - 1 ? "#fff" : "rgba(100,200,150,0.6)";
+    sctx.arc(x, y, i === vals.length - 1 ? 3 : 2, 0, Math.PI * 2);
+    sctx.fill();
+  }
+}
+
+function showTooltip(d, mx, my) {
+  const tt = document.getElementById("tooltip");
+  tt.querySelector(".tt-title").textContent = d.title + " [" + d.code + "]";
+  tt.querySelector(".tt-highlight").innerHTML = tooltipHighlight(d);
+
+  const sign = d.yoyPersons > 0 ? "+" : "";
+  const vsign = d.yoyVacancies > 0 ? "+" : "";
+  tt.querySelector(".tt-stats").innerHTML = `
+    <span class="label">Persons engaged</span><span class="value">${formatNumber(d.persons)}</span>
+    <span class="label">Vacancies</span><span class="value">${formatNumber(d.vacancies)}</span>
+    <span class="label">Vacancy rate</span><span class="value">${d.vacancyRate.toFixed(1)}%</span>
+    <span class="label">Employment YoY</span><span class="value">${sign}${d.yoyPersons.toFixed(1)}%</span>
+    <span class="label">Vacancies YoY</span><span class="value">${vsign}${d.yoyVacancies.toFixed(1)}%</span>
+    <span class="label">Establishments</span><span class="value">${formatNumber(d.establishments)}</span>
+    <span class="label">Category</span><span class="value">${d.category}</span>`;
+
+  // Show rationale for exposure mode
+  tt.querySelector(".tt-rationale").textContent = colorMode === "exposure" ? (d.exposure_rationale || "") : "";
+
+  // Draw sparkline
+  const sparkCanvas = tt.querySelector(".tt-sparkline canvas");
+  drawSparkline(d, sparkCanvas);
+
+  let tx = mx + 16, ty = my - 16;
+  if (tx + 380 > window.innerWidth) tx = mx - 396;
+  if (ty < 10) ty = my + 16;
+  if (ty + 280 > window.innerHeight) ty = my - 280;
+  tt.style.left = tx + "px"; tt.style.top = ty + "px";
+  tt.classList.add("visible");
+}
+function hideTooltip() { document.getElementById("tooltip").classList.remove("visible"); }
+
+// ── Stat helpers ──────────────────────────────────────────────────────
+
+function renderTiers(tiers, totalJobs) {
+  return tiers.map(t => `<div class="tier-row">
+    <div class="tier-color" style="background:${t.color}"></div>
+    <span class="tier-name">${t.label}</span>
+    <span class="tier-jobs">${formatCompact(t.jobs)}</span>
+    <span class="tier-pct">${totalJobs > 0 ? (t.jobs / totalJobs * 100).toFixed(0) : 0}%</span>
+  </div>`).join("");
+}
+
+function renderHbars(items) {
+  return items.map(it => `<div class="hbar-row">
+    <span class="hbar-label">${it.label}</span>
+    <div class="hbar-track"><div class="hbar-fill" style="width:${it.pct}%;background:${it.color}"></div></div>
+    <span class="hbar-val">${it.val}</span>
+  </div>`).join("");
+}
+
+// ── Layer-specific stats ────────────────────────────────────────────────
+
+function updateStats() {
+  const totalJobs = data.reduce((s, d) => s + (d.persons || 0), 0);
+  document.getElementById("statTotalJobs").textContent = (totalJobs / 1e6).toFixed(2) + "M";
+
+  if (colorMode === "growth") updateGrowthStats(totalJobs);
+  else if (colorMode === "vacancy") updateVacancyStats(totalJobs);
+  else if (colorMode === "demand") updateDemandStats(totalJobs);
+  else if (colorMode === "exposure") updateExposureStats(totalJobs);
+}
+
+function updateGrowthStats(totalJobs) {
+  // Weighted avg growth
+  let wS = 0, wC = 0;
+  for (const d of data) { if (d.yoyPersons != null && d.persons) { wS += d.yoyPersons * d.persons; wC += d.persons; } }
+  const avg = wC > 0 ? wS / wC : 0;
+  const sign = avg > 0 ? "+" : "";
+  document.getElementById("block2").innerHTML = `<h3>Avg. growth</h3>
+    <div class="stat-big"><span style="color:${growthColor(avg, 1)}">${sign}${avg.toFixed(1)}%</span></div>
+    <div class="stat-label">job-weighted YoY</div>`;
+
+  // Histogram
+  const buckets = [
+    { lo: -Infinity, hi: -3, mid: -6 }, { lo: -3, hi: -1, mid: -2 }, { lo: -1, hi: 1, mid: 0 },
+    { lo: 1, hi: 3, mid: 2 }, { lo: 3, hi: Infinity, mid: 5 },
+  ];
+  const histJobs = buckets.map(() => 0);
+  for (const d of data) { if (d.yoyPersons != null && d.persons) { const i = buckets.findIndex(b => d.yoyPersons >= b.lo && d.yoyPersons < b.hi); if (i >= 0) histJobs[i] += d.persons; else histJobs[histJobs.length - 1] += d.persons; } }
+  const maxH = Math.max(...histJobs);
+  document.getElementById("block3").innerHTML = `<h3>Jobs by growth rate</h3>
+    <div class="histogram">${histJobs.map((c, i) => `<div class="bar" style="height:${Math.max(2, maxH > 0 ? c / maxH * 100 : 0)}%;background:${growthColor(buckets[i].mid, 0.7)}"></div>`).join("")}</div>
+    <div class="hist-labels"><span>&lt;-3%</span><span>0%</span><span>&gt;3%</span></div>`;
+
+  // Tier breakdown
+  const growthTiers = [
+    { label: "Shrinking (<-1%)", min: -Infinity, max: -1, mid: -4 },
+    { label: "Flat (-1 to +1%)", min: -1, max: 1, mid: 0 },
+    { label: "Growing (1-3%)", min: 1, max: 3, mid: 2 },
+    { label: "Fast growth (>3%)", min: 3, max: Infinity, mid: 5 },
+  ];
+  const tiers = growthTiers.map(t => {
+    let jobs = 0;
+    for (const d of data) { if (d.yoyPersons != null && d.persons && d.yoyPersons >= t.min && d.yoyPersons < t.max) jobs += d.persons; }
+    return { ...t, label: t.label, jobs, color: growthColor(t.mid, 1) };
+  });
+  document.getElementById("block4").innerHTML = `<h3>Growth tiers</h3><div class="tier-bar">${renderTiers(tiers, totalJobs)}</div>`;
+
+  // Cross: growth by category
+  const cats = [...new Set(data.map(d => d.category))];
+  const byCat = cats.map(cat => {
+    let wS2 = 0, wC2 = 0;
+    for (const d of data) { if (d.category === cat && d.yoyPersons != null && d.persons) { wS2 += d.yoyPersons * d.persons; wC2 += d.persons; } }
+    const a = wC2 > 0 ? wS2 / wC2 : 0;
+    return { label: cat, avg: a, jobs: wC2 };
+  }).sort((a, b) => b.avg - a.avg);
+  document.getElementById("block5").innerHTML = `<h3>Growth by category</h3><div class="hbar-chart">${renderHbars(byCat.map(g => ({
+    label: g.label, val: (g.avg > 0 ? "+" : "") + g.avg.toFixed(1) + "%",
+    pct: Math.max(0, Math.min(100, (g.avg + 8) / 16 * 100)), color: growthColor(g.avg, 0.8)
+  })))}</div>`;
+
+  // Total vacancies
+  const totalVac = data.reduce((s, d) => s + (d.vacancies || 0), 0);
+  document.getElementById("block6").innerHTML = `<h3>Total vacancies</h3>
+    <div class="stat-big">${formatCompact(totalVac)}</div>
+    <div class="stat-label">across all sectors</div>`;
+
+  // Declining jobs
+  let declining = 0;
+  for (const d of data) { if (d.yoyPersons != null && d.yoyPersons < 0 && d.persons) declining += d.persons; }
+  document.getElementById("block7").innerHTML = `<h3>Declining sectors</h3>
+    <div class="stat-big" style="color:${growthColor(-4, 1)}">${formatCompact(declining)}</div>
+    <div class="stat-label">jobs in shrinking sectors</div>`;
+
+  let growing = 0;
+  for (const d of data) { if (d.yoyPersons != null && d.yoyPersons > 0 && d.persons) growing += d.persons; }
+  document.getElementById("block8").innerHTML = `<h3>Growing sectors</h3>
+    <div class="stat-big" style="color:${growthColor(4, 1)}">${formatCompact(growing)}</div>
+    <div class="stat-label">jobs in expanding sectors</div>`;
+}
+
+function updateVacancyStats(totalJobs) {
+  // Weighted avg vacancy rate
+  let wS = 0, wC = 0;
+  for (const d of data) { if (d.vacancyRate != null && d.persons) { wS += d.vacancyRate * d.persons; wC += d.persons; } }
+  const avg = wC > 0 ? wS / wC : 0;
+  document.getElementById("block2").innerHTML = `<h3>Avg. vacancy rate</h3>
+    <div class="stat-big"><span style="color:${vacancyColor(avg, 1)}">${avg.toFixed(1)}%</span></div>
+    <div class="stat-label">job-weighted</div>`;
+
+  // Histogram
+  const buckets = [
+    { lo: 0, hi: 0.5, mid: 0.25 }, { lo: 0.5, hi: 1.0, mid: 0.75 }, { lo: 1.0, hi: 1.5, mid: 1.25 },
+    { lo: 1.5, hi: 2.0, mid: 1.75 }, { lo: 2.0, hi: 2.5, mid: 2.25 }, { lo: 2.5, hi: 3.0, mid: 2.75 },
+    { lo: 3.0, hi: Infinity, mid: 3.5 },
+  ];
+  const histJobs = buckets.map(() => 0);
+  for (const d of data) { if (d.vacancyRate != null && d.persons) { const i = buckets.findIndex(b => d.vacancyRate >= b.lo && d.vacancyRate < b.hi); if (i >= 0) histJobs[i] += d.persons; else histJobs[histJobs.length - 1] += d.persons; } }
+  const maxH = Math.max(...histJobs);
+  document.getElementById("block3").innerHTML = `<h3>Jobs by vacancy rate</h3>
+    <div class="histogram">${histJobs.map((c, i) => `<div class="bar" style="height:${Math.max(2, maxH > 0 ? c / maxH * 100 : 0)}%;background:${vacancyColor(buckets[i].mid, 0.7)}"></div>`).join("")}</div>
+    <div class="hist-labels"><span>0%</span><span>1.5%</span><span>3%+</span></div>`;
+
+  // Tier breakdown
+  const vacTiers = [
+    { label: "Low (<1%)", min: 0, max: 1, mid: 0.5 },
+    { label: "Moderate (1-2%)", min: 1, max: 2, mid: 1.5 },
+    { label: "High (2-3%)", min: 2, max: 3, mid: 2.5 },
+    { label: "Very high (3%+)", min: 3, max: Infinity, mid: 3.5 },
+  ];
+  const tiers = vacTiers.map(t => {
+    let jobs = 0;
+    for (const d of data) { if (d.vacancyRate != null && d.persons && d.vacancyRate >= t.min && d.vacancyRate < t.max) jobs += d.persons; }
+    return { ...t, jobs, color: vacancyColor(t.mid, 1) };
+  });
+  document.getElementById("block4").innerHTML = `<h3>Vacancy rate tiers</h3><div class="tier-bar">${renderTiers(tiers, totalJobs)}</div>`;
+
+  // Top sectors by vacancy rate
+  const sorted = [...data].sort((a, b) => b.vacancyRate - a.vacancyRate).slice(0, 5);
+  document.getElementById("block5").innerHTML = `<h3>Highest vacancy rates</h3><div class="hbar-chart">${renderHbars(sorted.map(d => ({
+    label: d.title.length > 14 ? d.title.slice(0, 12) + ".." : d.title, val: d.vacancyRate.toFixed(1) + "%",
+    pct: Math.max(0, Math.min(100, d.vacancyRate / 4 * 100)), color: vacancyColor(d.vacancyRate, 0.8)
+  })))}</div>`;
+
+  // Total vacancies
+  const totalVac = data.reduce((s, d) => s + (d.vacancies || 0), 0);
+  document.getElementById("block6").innerHTML = `<h3>Total vacancies</h3>
+    <div class="stat-big">${formatCompact(totalVac)}</div>
+    <div class="stat-label">across all sectors</div>`;
+
+  // Vacancy by category
+  const cats = [...new Set(data.map(d => d.category))];
+  const byCat = cats.map(cat => {
+    let wS2 = 0, wC2 = 0;
+    for (const d of data) { if (d.category === cat && d.vacancyRate != null && d.persons) { wS2 += d.vacancyRate * d.persons; wC2 += d.persons; } }
+    return { label: cat, avg: wC2 > 0 ? wS2 / wC2 : 0 };
+  }).sort((a, b) => b.avg - a.avg);
+  document.getElementById("block7").innerHTML = `<h3>Vacancy rate by category</h3><div class="hbar-chart">${renderHbars(byCat.map(g => ({
+    label: g.label, val: g.avg.toFixed(1) + "%",
+    pct: Math.max(0, Math.min(100, g.avg / 4 * 100)), color: vacancyColor(g.avg, 0.8)
+  })))}</div>`;
+
+  document.getElementById("block8").innerHTML = "";
+}
+
+function updateDemandStats(totalJobs) {
+  // Weighted avg demand change
+  let wS = 0, wC = 0;
+  for (const d of data) { if (d.yoyVacancies != null && d.vacancies) { wS += d.yoyVacancies * d.vacancies; wC += d.vacancies; } }
+  const avg = wC > 0 ? wS / wC : 0;
+  const sign = avg > 0 ? "+" : "";
+  document.getElementById("block2").innerHTML = `<h3>Avg. demand change</h3>
+    <div class="stat-big"><span style="color:${demandColor(avg, 1)}">${sign}${avg.toFixed(1)}%</span></div>
+    <div class="stat-label">vacancy-weighted YoY</div>`;
+
+  // Histogram
+  const buckets = [
+    { lo: -Infinity, hi: -8, mid: -12 }, { lo: -8, hi: -3, mid: -5 }, { lo: -3, hi: 0, mid: -1.5 },
+    { lo: 0, hi: 3, mid: 1.5 }, { lo: 3, hi: 8, mid: 5 }, { lo: 8, hi: Infinity, mid: 10 },
+  ];
+  const histVac = buckets.map(() => 0);
+  for (const d of data) { if (d.yoyVacancies != null && d.vacancies) { const i = buckets.findIndex(b => d.yoyVacancies >= b.lo && d.yoyVacancies < b.hi); if (i >= 0) histVac[i] += d.vacancies; else histVac[histVac.length - 1] += d.vacancies; } }
+  const maxH = Math.max(...histVac);
+  document.getElementById("block3").innerHTML = `<h3>Vacancies by demand change</h3>
+    <div class="histogram">${histVac.map((c, i) => `<div class="bar" style="height:${Math.max(2, maxH > 0 ? c / maxH * 100 : 0)}%;background:${demandColor(buckets[i].mid, 0.7)}"></div>`).join("")}</div>
+    <div class="hist-labels"><span>&lt;-8%</span><span>0%</span><span>&gt;8%</span></div>`;
+
+  // Tier breakdown
+  const demandTiers = [
+    { label: "Falling fast (<-5%)", min: -Infinity, max: -5, mid: -10 },
+    { label: "Declining (-5 to 0%)", min: -5, max: 0, mid: -2.5 },
+    { label: "Stable (0 to 3%)", min: 0, max: 3, mid: 1.5 },
+    { label: "Rising (3%+)", min: 3, max: Infinity, mid: 6 },
+  ];
+  const tiers = demandTiers.map(t => {
+    let vac = 0;
+    for (const d of data) { if (d.yoyVacancies != null && d.vacancies && d.yoyVacancies >= t.min && d.yoyVacancies < t.max) vac += d.vacancies; }
+    return { ...t, jobs: vac, color: demandColor(t.mid, 1) };
+  });
+  const totalVac = data.reduce((s, d) => s + (d.vacancies || 0), 0);
+  document.getElementById("block4").innerHTML = `<h3>Demand tiers (by vacancies)</h3><div class="tier-bar">${renderTiers(tiers, totalVac)}</div>`;
+
+  // Top growing demand
+  const sortedUp = [...data].sort((a, b) => b.yoyVacancies - a.yoyVacancies).slice(0, 5);
+  document.getElementById("block5").innerHTML = `<h3>Fastest growing demand</h3><div class="hbar-chart">${renderHbars(sortedUp.map(d => ({
+    label: d.title.length > 14 ? d.title.slice(0, 12) + ".." : d.title, val: (d.yoyVacancies > 0 ? "+" : "") + d.yoyVacancies.toFixed(1) + "%",
+    pct: Math.max(0, Math.min(100, (d.yoyVacancies + 15) / 30 * 100)), color: demandColor(d.yoyVacancies, 0.8)
+  })))}</div>`;
+
+  // Total vacancies
+  document.getElementById("block6").innerHTML = `<h3>Total vacancies</h3>
+    <div class="stat-big">${formatCompact(totalVac)}</div>
+    <div class="stat-label">across all sectors</div>`;
+
+  // Most declining demand
+  const sortedDown = [...data].sort((a, b) => a.yoyVacancies - b.yoyVacancies).slice(0, 5);
+  document.getElementById("block7").innerHTML = `<h3>Fastest falling demand</h3><div class="hbar-chart">${renderHbars(sortedDown.map(d => ({
+    label: d.title.length > 14 ? d.title.slice(0, 12) + ".." : d.title, val: (d.yoyVacancies > 0 ? "+" : "") + d.yoyVacancies.toFixed(1) + "%",
+    pct: Math.max(0, Math.min(100, (d.yoyVacancies + 15) / 30 * 100)), color: demandColor(d.yoyVacancies, 0.8)
+  })))}</div>`;
+
+  document.getElementById("block8").innerHTML = "";
+}
+
+function updateExposureStats(totalJobs) {
+  // Weighted avg exposure
+  let wS = 0, wC = 0;
+  for (const d of data) { if (d.exposure != null && d.persons) { wS += d.exposure * d.persons; wC += d.persons; } }
+  const avg = wC > 0 ? wS / wC : 0;
+  document.getElementById("block2").innerHTML = `<h3>Avg. exposure</h3>
+    <div class="stat-big"><span style="color:${exposureColor(avg, 1)}">${avg.toFixed(1)}</span></div>
+    <div class="stat-label">job-weighted, 0\u201310</div>`;
+
+  // Histogram: jobs by exposure score
+  const histogram = new Array(11).fill(0);
+  for (const d of data) { if (d.exposure != null && d.persons) histogram[d.exposure] += d.persons; }
+  const maxH = Math.max(...histogram);
+  document.getElementById("block3").innerHTML = `<h3>Jobs by exposure</h3>
+    <div class="histogram">${histogram.map((c, i) => `<div class="bar" style="height:${Math.max(2, maxH > 0 ? c / maxH * 100 : 0)}%;background:${exposureColor(i, 0.7)}"></div>`).join("")}</div>
+    <div class="hist-labels"><span>0</span><span>5</span><span>10</span></div>`;
+
+  // Tier breakdown
+  const tierDefs = [
+    { label: "Minimal (0\u20132)", lo: 0, hi: 2, mid: 1 },
+    { label: "Low (3\u20134)", lo: 3, hi: 4, mid: 3.5 },
+    { label: "Moderate (5\u20136)", lo: 5, hi: 6, mid: 5.5 },
+    { label: "High (7\u20138)", lo: 7, hi: 8, mid: 7.5 },
+    { label: "Very high (9\u201310)", lo: 9, hi: 10, mid: 9.5 },
+  ];
+  const tiers = tierDefs.map(t => {
+    let jobs = 0;
+    for (const d of data) { if (d.exposure != null && d.persons && d.exposure >= t.lo && d.exposure <= t.hi) jobs += d.persons; }
+    return { ...t, jobs, color: exposureColor(t.mid, 1) };
+  });
+  document.getElementById("block4").innerHTML = `<h3>Exposure tiers</h3><div class="tier-bar">${renderTiers(tiers, totalJobs)}</div>`;
+
+  // Exposure by category
+  const cats = [...new Set(data.map(d => d.category))];
+  const byCat = cats.map(cat => {
+    let wS2 = 0, wC2 = 0;
+    for (const d of data) { if (d.category === cat && d.exposure != null && d.persons) { wS2 += d.exposure * d.persons; wC2 += d.persons; } }
+    return { label: cat, avg: wC2 > 0 ? wS2 / wC2 : 0 };
+  }).sort((a, b) => b.avg - a.avg);
+  document.getElementById("block5").innerHTML = `<h3>Exposure by category</h3><div class="hbar-chart">${renderHbars(byCat.map(g => ({
+    label: g.label, val: g.avg.toFixed(1),
+    pct: g.avg / 10 * 100, color: exposureColor(g.avg, 0.8)
+  })))}</div>`;
+
+  // Highest exposure sectors
+  const sortedHigh = [...data].filter(d => d.exposure != null).sort((a, b) => b.exposure - a.exposure).slice(0, 5);
+  document.getElementById("block6").innerHTML = `<h3>Most exposed sectors</h3><div class="hbar-chart">${renderHbars(sortedHigh.map(d => ({
+    label: d.title.length > 14 ? d.title.slice(0, 12) + ".." : d.title, val: d.exposure + "/10",
+    pct: d.exposure / 10 * 100, color: exposureColor(d.exposure, 0.8)
+  })))}</div>`;
+
+  // Wages exposed: jobs in sectors scoring 7+
+  let highExposedJobs = 0;
+  for (const d of data) { if (d.exposure != null && d.exposure >= 7 && d.persons) highExposedJobs += d.persons; }
+  document.getElementById("block7").innerHTML = `<h3>Highly exposed jobs</h3>
+    <div class="stat-big" style="color:${exposureColor(8, 1)}">${formatCompact(highExposedJobs)}</div>
+    <div class="stat-label">in sectors scoring 7+</div>`;
+
+  // Low exposure jobs
+  let lowExposedJobs = 0;
+  for (const d of data) { if (d.exposure != null && d.exposure <= 3 && d.persons) lowExposedJobs += d.persons; }
+  document.getElementById("block8").innerHTML = `<h3>Insulated jobs</h3>
+    <div class="stat-big" style="color:${exposureColor(2, 1)}">${formatCompact(lowExposedJobs)}</div>
+    <div class="stat-label">in sectors scoring 0\u20133</div>`;
+}
+
+// ── Events ─────────────────────────────────────────────────────────────
+
+canvas.addEventListener("mousemove", (e) => {
+  const hit = hitTest(e.clientX, e.clientY);
+  if (hit !== hovered) { hovered = hit; draw(); }
+  if (hovered) { showTooltip(hovered, e.clientX, e.clientY); canvas.style.cursor = "pointer"; }
+  else { hideTooltip(); canvas.style.cursor = "default"; }
+});
+canvas.addEventListener("mouseleave", () => { hovered = null; hideTooltip(); draw(); });
+function resize() { dpr = window.devicePixelRatio || 1; layout(); draw(); }
+
+// ── Legend gradient ────────────────────────────────────────────────────
+
+const LEGEND_CONFIG = {
+  growth:   { low: "Declining", high: "Growing" },
+  vacancy:  { low: "Low demand", high: "High demand" },
+  demand:   { low: "Falling", high: "Rising" },
+  exposure: { low: "Low", high: "High" },
+};
+
+function drawGradientLegend() {
+  const c = document.getElementById("gradientLegend");
+  const gctx = c.getContext("2d");
+  for (let x = 0; x < 80; x++) {
+    const t = x / 79;
+    // For exposure, flip so low=green(left), high=red(right)
+    gctx.fillStyle = colorMode === "exposure" ? greenRedCSS(1 - t, 1) : greenRedCSS(t, 1);
+    gctx.fillRect(x, 0, 1, 8);
+  }
+  const cfg = LEGEND_CONFIG[colorMode];
+  document.getElementById("legendLow").textContent = cfg.low;
+  document.getElementById("legendHigh").textContent = cfg.high;
+}
+
+// ── Layer toggle ─────────────────────────────────────────────────────
+
+document.getElementById("colorToggle").addEventListener("click", (e) => {
+  const btn = e.target.closest("button");
+  if (!btn || !btn.dataset.mode) return;
+  colorMode = btn.dataset.mode;
+  document.querySelectorAll("#colorToggle button").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  updateStats();
+  drawGradientLegend();
+  draw();
+  requestAnimationFrame(resize);
+});
+
+// ── Load ───────────────────────────────────────────────────────────────
+
+fetch("data.json")
+  .then(r => r.json())
+  .then(d => {
+    rawData = d;
+    data = d.sectors;
+    updateStats();
+    drawGradientLegend();
+    resize();
+  });
+
+window.addEventListener("resize", resize);
+</script>
+</body>
+</html>

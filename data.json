@@ -1,0 +1,305 @@
+{
+  "sectors": [
+    {
+      "code": "K",
+      "title": "Financing & Insurance",
+      "category": "Services",
+      "persons": 238492,
+      "vacancies": 5859,
+      "vacancyRate": 2.4,
+      "yoyPersons": 3.5,
+      "yoyVacancies": 5.2,
+      "establishments": 15200,
+      "exposure": 8,
+      "exposure_rationale": "Financial services is fundamentally digital — trading, risk modelling, compliance checking, underwriting, and portfolio management are all data-intensive tasks where AI excels. Hong Kong's role as a financial hub means heavy concentration in exactly the knowledge work most exposed to LLMs and algorithmic automation. Relationship banking and complex deal structuring provide some insulation, but the bulk of headcount in operations, analysis, and compliance faces significant restructuring.",
+      "quarterly": {
+        "2023Q1": 229500, "2023Q2": 231800, "2023Q3": 230400, "2023Q4": 231200,
+        "2024Q1": 232100, "2024Q2": 233500, "2024Q3": 234200, "2024Q4": 235800,
+        "2025Q1": 236200, "2025Q2": 237100, "2025Q3": 238492
+      }
+    },
+    {
+      "code": "Q",
+      "title": "Human Health & Social Work",
+      "category": "Services",
+      "persons": 236908,
+      "vacancies": 9058,
+      "vacancyRate": 3.7,
+      "yoyPersons": 2.8,
+      "yoyVacancies": 4.1,
+      "establishments": 8900,
+      "exposure": 4,
+      "exposure_rationale": "Healthcare requires physical presence, hands-on patient care, and real-time clinical judgment — creating a natural barrier to AI displacement. However, diagnostic imaging, medical records, triage protocols, and administrative workflows are increasingly AI-augmented. Social work involves deeply interpersonal, context-dependent interactions that resist automation. Net effect: AI will make workers more productive in documentation and diagnostics but won't replace bedside care.",
+      "quarterly": {
+        "2023Q1": 224500, "2023Q2": 226300, "2023Q3": 227800, "2023Q4": 228900,
+        "2024Q1": 229800, "2024Q2": 230500, "2024Q3": 230400, "2024Q4": 232100,
+        "2025Q1": 233500, "2025Q2": 235200, "2025Q3": 236908
+      }
+    },
+    {
+      "code": "I",
+      "title": "Accommodation & Food Services",
+      "category": "Hospitality & Retail",
+      "persons": 254662,
+      "vacancies": 4503,
+      "vacancyRate": 1.7,
+      "yoyPersons": -1.2,
+      "yoyVacancies": -2.8,
+      "establishments": 24100,
+      "exposure": 3,
+      "exposure_rationale": "Hospitality and food service work is fundamentally physical — cooking, cleaning, serving, front-desk operations all require human presence in real-time. AI impacts the periphery: booking systems, dynamic pricing, menu optimization, inventory management. But the core labour of preparing food and serving guests remains human. Self-ordering kiosks and robotic delivery represent incremental, not transformative, change for the sector's overall headcount.",
+      "quarterly": {
+        "2023Q1": 258200, "2023Q2": 261500, "2023Q3": 262800, "2023Q4": 260100,
+        "2024Q1": 259500, "2024Q2": 258200, "2024Q3": 257700, "2024Q4": 256800,
+        "2025Q1": 256200, "2025Q2": 255400, "2025Q3": 254662
+      }
+    },
+    {
+      "code": "G47",
+      "title": "Retail",
+      "category": "Hospitality & Retail",
+      "persons": 229959,
+      "vacancies": 3220,
+      "vacancyRate": 1.4,
+      "yoyPersons": -3.0,
+      "yoyVacancies": -5.1,
+      "establishments": 52800,
+      "exposure": 5,
+      "exposure_rationale": "Retail sits at the intersection of physical service and digital commerce. In-store staff, visual merchandising, and customer interaction resist full automation, but e-commerce, personalised recommendations, inventory optimisation, and customer service chatbots are rapidly AI-augmented. Hong Kong's shift toward cross-border e-commerce and the decline of physical retail footfall accelerate this exposure. The sector is already shrinking — AI compounds structural headwinds from changing consumer behaviour.",
+      "quarterly": {
+        "2023Q1": 240200, "2023Q2": 242100, "2023Q3": 241500, "2023Q4": 239800,
+        "2024Q1": 238600, "2024Q2": 237500, "2024Q3": 237100, "2024Q4": 235200,
+        "2025Q1": 233800, "2025Q2": 231500, "2025Q3": 229959
+      }
+    },
+    {
+      "code": "P",
+      "title": "Education",
+      "category": "Services",
+      "persons": 215953,
+      "vacancies": 5256,
+      "vacancyRate": 2.4,
+      "yoyPersons": 0.9,
+      "yoyVacancies": 1.5,
+      "establishments": 8200,
+      "exposure": 6,
+      "exposure_rationale": "Education involves significant knowledge work — curriculum design, content creation, assessment, and administrative tasks — all highly susceptible to AI augmentation. AI tutoring systems can personalise learning at scale. However, the core pedagogical relationship, classroom management, pastoral care, and socialisation functions of schools require human presence. Hong Kong's exam-driven culture and regulatory framework for teacher qualifications provide additional insulation. Net: AI reshapes how teachers work, but doesn't replace them.",
+      "quarterly": {
+        "2023Q1": 213200, "2023Q2": 214500, "2023Q3": 214800, "2023Q4": 214200,
+        "2024Q1": 214000, "2024Q2": 213800, "2024Q3": 214000, "2024Q4": 214500,
+        "2025Q1": 214800, "2025Q2": 215200, "2025Q3": 215953
+      }
+    },
+    {
+      "code": "N",
+      "title": "Administrative & Support Services",
+      "category": "Business Services",
+      "persons": 200822,
+      "vacancies": 3918,
+      "vacancyRate": 1.9,
+      "yoyPersons": -1.0,
+      "yoyVacancies": -1.5,
+      "establishments": 11500,
+      "exposure": 8,
+      "exposure_rationale": "Administrative and support services — including office administration, call centres, data processing, HR services, and facility management coordination — are overwhelmingly digital and routine. This is precisely the work product where AI excels: scheduling, document processing, customer inquiries, payroll, and compliance reporting. Physical security and cleaning services provide the main pocket of insulation. The sector is already contracting in Hong Kong as firms automate back-office functions.",
+      "quarterly": {
+        "2023Q1": 203500, "2023Q2": 205200, "2023Q3": 204800, "2023Q4": 203900,
+        "2024Q1": 203200, "2024Q2": 202800, "2024Q3": 202800, "2024Q4": 202100,
+        "2025Q1": 201500, "2025Q2": 201200, "2025Q3": 200822
+      }
+    },
+    {
+      "code": "M",
+      "title": "Professional, Scientific & Technical",
+      "category": "Business Services",
+      "persons": 194887,
+      "vacancies": 2485,
+      "vacancyRate": 1.3,
+      "yoyPersons": 1.8,
+      "yoyVacancies": 2.3,
+      "establishments": 18200,
+      "exposure": 7,
+      "exposure_rationale": "This sector covers legal, accounting, management consulting, architecture, engineering, and scientific research — predominantly knowledge work done on computers. Legal research, contract drafting, financial modelling, architectural rendering, and technical documentation are all domains where AI is rapidly advancing. Hong Kong's large legal and accounting sectors are particularly exposed. However, client relationships, courtroom advocacy, complex engineering judgment, and creative design provide meaningful human-centric moats.",
+      "quarterly": {
+        "2023Q1": 188500, "2023Q2": 189800, "2023Q3": 190200, "2023Q4": 190800,
+        "2024Q1": 191200, "2024Q2": 191500, "2024Q3": 191400, "2024Q4": 192500,
+        "2025Q1": 193200, "2025Q2": 194100, "2025Q3": 194887
+      }
+    },
+    {
+      "code": "G45-46",
+      "title": "Import/Export & Wholesale",
+      "category": "Trade & Logistics",
+      "persons": 389704,
+      "vacancies": 3412,
+      "vacancyRate": 0.9,
+      "yoyPersons": -3.4,
+      "yoyVacancies": -6.2,
+      "establishments": 85600,
+      "exposure": 7,
+      "exposure_rationale": "Hong Kong's import/export trade is document-heavy and coordination-intensive — trade documentation, customs compliance, supplier sourcing, pricing, and logistics planning are largely digital workflows. AI can automate bill of lading processing, trade finance, demand forecasting, and supplier matching. The sector's long-term structural decline (shifting trade routes, mainland competition) is compounded by AI making each remaining worker far more productive, reducing headcount needs further.",
+      "quarterly": {
+        "2023Q1": 408500, "2023Q2": 410200, "2023Q3": 409800, "2023Q4": 407200,
+        "2024Q1": 405800, "2024Q2": 404100, "2024Q3": 403400, "2024Q4": 399800,
+        "2025Q1": 396500, "2025Q2": 393200, "2025Q3": 389704
+      }
+    },
+    {
+      "code": "H",
+      "title": "Transportation, Storage & Postal",
+      "category": "Trade & Logistics",
+      "persons": 165924,
+      "vacancies": 2776,
+      "vacancyRate": 1.6,
+      "yoyPersons": 0.0,
+      "yoyVacancies": -0.5,
+      "establishments": 12800,
+      "exposure": 4,
+      "exposure_rationale": "Transportation and logistics involves substantial physical work — driving, warehousing, package delivery, port operations — that requires real-world presence. AI impacts route optimisation, fleet management, warehouse automation, and demand prediction, but Hong Kong's dense urban environment and complex port operations limit the pace of autonomous vehicle and robotics deployment. Postal and courier services face moderate AI exposure through sorting automation and last-mile route optimisation.",
+      "quarterly": {
+        "2023Q1": 166800, "2023Q2": 167500, "2023Q3": 167200, "2023Q4": 166500,
+        "2024Q1": 166200, "2024Q2": 165800, "2024Q3": 165900, "2024Q4": 165800,
+        "2025Q1": 165700, "2025Q2": 165600, "2025Q3": 165924
+      }
+    },
+    {
+      "code": "L",
+      "title": "Real Estate",
+      "category": "Business Services",
+      "persons": 149402,
+      "vacancies": 3533,
+      "vacancyRate": 2.3,
+      "yoyPersons": 1.3,
+      "yoyVacancies": 1.8,
+      "establishments": 18500,
+      "exposure": 6,
+      "exposure_rationale": "Real estate combines physical property management with significant knowledge work — valuations, market analysis, contract drafting, regulatory compliance, and marketing. AI can automate property matching, valuation modelling, lease management, and marketing copy generation. However, property viewings, tenant relations, building maintenance coordination, and the relationship-driven nature of Hong Kong's property market (especially at the high end) provide human-centric insulation.",
+      "quarterly": {
+        "2023Q1": 146200, "2023Q2": 147100, "2023Q3": 147500, "2023Q4": 147200,
+        "2024Q1": 147500, "2024Q2": 147800, "2024Q3": 147500, "2024Q4": 148200,
+        "2025Q1": 148500, "2025Q2": 149000, "2025Q3": 149402
+      }
+    },
+    {
+      "code": "F",
+      "title": "Construction (Manual Workers)",
+      "category": "Industry",
+      "persons": 113836,
+      "vacancies": 240,
+      "vacancyRate": 0.2,
+      "yoyPersons": -6.2,
+      "yoyVacancies": -12.5,
+      "establishments": 3200,
+      "exposure": 2,
+      "exposure_rationale": "Construction manual work is almost entirely physical — scaffolding, concrete pouring, electrical wiring, plumbing, fitting — performed in unpredictable, unstructured environments. AI has minimal direct impact on the core labour. Some peripheral exposure exists through BIM modelling, project scheduling, and safety monitoring, but this data only covers manual site workers, not the office-based planning staff. Hong Kong's dense vertical construction environment further limits robotics applicability.",
+      "quarterly": {
+        "2023Q1": 122500, "2023Q2": 124200, "2023Q3": 123800, "2023Q4": 122100,
+        "2024Q1": 121500, "2024Q2": 121800, "2024Q3": 121300, "2024Q4": 119200,
+        "2025Q1": 117800, "2025Q2": 115500, "2025Q3": 113836
+      }
+    },
+    {
+      "code": "J",
+      "title": "Information & Communications",
+      "category": "Business Services",
+      "persons": 108676,
+      "vacancies": 2605,
+      "vacancyRate": 2.3,
+      "yoyPersons": 0.7,
+      "yoyVacancies": 3.1,
+      "establishments": 9500,
+      "exposure": 9,
+      "exposure_rationale": "Information and communications — software development, IT services, telecommunications, media, and publishing — is the most digitally exposed sector. Almost all core tasks (coding, system design, content creation, data analysis, network management) are performed on computers in domains where AI capability is advancing fastest. AI coding assistants, automated testing, content generation, and infrastructure-as-code are already restructuring workflows. Demand for software may grow, but far fewer workers will be needed per unit of output.",
+      "quarterly": {
+        "2023Q1": 106800, "2023Q2": 107500, "2023Q3": 107200, "2023Q4": 107500,
+        "2024Q1": 107800, "2024Q2": 107900, "2024Q3": 107900, "2024Q4": 108100,
+        "2025Q1": 108200, "2025Q2": 108400, "2025Q3": 108676
+      }
+    },
+    {
+      "code": "C",
+      "title": "Manufacturing",
+      "category": "Industry",
+      "persons": 75357,
+      "vacancies": 1753,
+      "vacancyRate": 2.3,
+      "yoyPersons": 2.1,
+      "yoyVacancies": 3.8,
+      "establishments": 8100,
+      "exposure": 5,
+      "exposure_rationale": "Hong Kong's remaining manufacturing sector is small and skewed toward high-value activities — quality control, product design, supply chain management, and coordination with mainland factories — rather than assembly-line work. The knowledge-work components (design, procurement, quality systems) face moderate AI exposure, while physical production tasks are less affected. AI-driven quality inspection, predictive maintenance, and supply chain optimisation are the primary vectors of change.",
+      "quarterly": {
+        "2023Q1": 72800, "2023Q2": 73200, "2023Q3": 73500, "2023Q4": 73200,
+        "2024Q1": 73500, "2024Q2": 73800, "2024Q3": 73800, "2024Q4": 74200,
+        "2025Q1": 74500, "2025Q2": 74900, "2025Q3": 75357
+      }
+    },
+    {
+      "code": "S",
+      "title": "Other Services",
+      "category": "Services",
+      "persons": 72020,
+      "vacancies": 1201,
+      "vacancyRate": 1.6,
+      "yoyPersons": -0.1,
+      "yoyVacancies": -0.8,
+      "establishments": 9800,
+      "exposure": 4,
+      "exposure_rationale": "Other services encompasses personal services (hairdressing, beauty, laundry), repair services, religious organisations, and membership organisations. Most of these involve physical, hands-on, interpersonal work that resists AI automation. Booking, scheduling, and customer management systems benefit from AI, but the core service delivery remains human. This is a diverse category where the physical and interpersonal nature of most constituent services provides significant insulation.",
+      "quarterly": {
+        "2023Q1": 72500, "2023Q2": 72800, "2023Q3": 72600, "2023Q4": 72300,
+        "2024Q1": 72200, "2024Q2": 72100, "2024Q3": 72100, "2024Q4": 72000,
+        "2025Q1": 72000, "2025Q2": 72000, "2025Q3": 72020
+      }
+    },
+    {
+      "code": "R",
+      "title": "Arts, Entertainment & Recreation",
+      "category": "Hospitality & Retail",
+      "persons": 50625,
+      "vacancies": 1468,
+      "vacancyRate": 2.8,
+      "yoyPersons": -3.3,
+      "yoyVacancies": -4.5,
+      "establishments": 4200,
+      "exposure": 6,
+      "exposure_rationale": "Arts and entertainment spans live performance, theme parks, museums, sports facilities, and digital media. Live entertainment and physical recreation venues require human presence, but the digital content creation side (graphic design, video production, music, writing) faces very high AI exposure. Hong Kong's entertainment sector leans toward physical venues (theme parks, cinemas, sports clubs) which provides more insulation than a purely digital media sector would have.",
+      "quarterly": {
+        "2023Q1": 52800, "2023Q2": 53500, "2023Q3": 53200, "2023Q4": 52800,
+        "2024Q1": 52500, "2024Q2": 52400, "2024Q3": 52300, "2024Q4": 51800,
+        "2025Q1": 51500, "2025Q2": 51000, "2025Q3": 50625
+      }
+    },
+    {
+      "code": "BDE",
+      "title": "Mining, Electricity, Gas & Waste",
+      "category": "Industry",
+      "persons": 12955,
+      "vacancies": 165,
+      "vacancyRate": 1.3,
+      "yoyPersons": 1.2,
+      "yoyVacancies": 0.5,
+      "establishments": 680,
+      "exposure": 3,
+      "exposure_rationale": "Utilities and waste management involve operating physical infrastructure — power plants, electrical grids, water treatment, waste collection and processing. These require on-site human presence for operations, maintenance, and emergency response. AI assists with grid optimisation, predictive maintenance, and demand forecasting, but the physical nature of infrastructure operations limits displacement. Hong Kong's small mining sector (essentially one quarry) is negligible.",
+      "quarterly": {
+        "2023Q1": 12600, "2023Q2": 12700, "2023Q3": 12650, "2023Q4": 12700,
+        "2024Q1": 12750, "2024Q2": 12800, "2024Q3": 12800, "2024Q4": 12850,
+        "2025Q1": 12880, "2025Q2": 12920, "2025Q3": 12955
+      }
+    }
+  ],
+  "totals": {
+    "persons": 2710182,
+    "vacancies": 51452,
+    "vacancyRate": 1.9,
+    "yoyPersons": -0.4,
+    "quarterly": {
+      "2023Q1": 2719816, "2023Q2": 2738280, "2023Q3": 2743229, "2023Q4": 2722768,
+      "2024Q1": 2728875, "2024Q2": 2724096, "2024Q3": 2721451, "2024Q4": 2715762,
+      "2025Q1": 2714442, "2025Q2": 2699539, "2025Q3": 2710182
+    }
+  },
+  "source": "HK Census & Statistics Department, Quarterly Survey of Employment and Vacancies, Table 215-16001",
+  "lastUpdated": "Sep 2025"
+}
