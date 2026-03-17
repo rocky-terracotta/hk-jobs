@@ -232,10 +232,10 @@ Respond with JSON: {"exposure": 0-10, "rationale": "2-3 sentences"}</div>
     <div class="stat-section">
       <h3>Layer</h3>
       <div class="color-toggle" id="colorToggle">
-        <button data-mode="growth" class="active">Employment Growth</button>
+        <button data-mode="exposure" class="active">AI Exposure</button>
+        <button data-mode="growth">Employment Growth</button>
         <button data-mode="vacancy">Vacancy Rate</button>
         <button data-mode="demand">Hiring Demand</button>
-        <button data-mode="exposure">AI Exposure</button>
       </div>
     </div>
     <div class="gradient-legend">
@@ -278,7 +278,7 @@ Respond with JSON: {"exposure": 0-10, "rationale": "2-3 sentences"}</div>
 
 // ── Color scales ────────────────────────────────────────────────────────
 
-let colorMode = "growth";
+let colorMode = "exposure";
 
 function boostContrast(t) {
   const c = (t - 0.5) * 2;
